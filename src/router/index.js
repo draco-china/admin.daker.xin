@@ -26,48 +26,64 @@ export const constantRouterMap = [
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
   {
-    path: '/',
+    path: '',
     component: Layout,
-    redirect: '/dashboard',
-    name: 'Dashboard',
-    hidden: true,
+    redirect: 'dashboard',
     children: [{
       path: 'dashboard',
-      component: () => import('@/views/dashboard/index')
+      component: () => import('@/views/dashboard/index'),
+      meta: { title: '首页', icon: 'iconfont icon-home', noCache: true }
     }]
   },
 
   {
-    path: '/example',
+    path: '',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        path: 'article',
+        name: 'article',
+        component: () => import('@/views/article/index'),
+        meta: { title: '撰写文章', icon: 'iconfont icon-work' }
       }
     ]
   },
 
   {
-    path: '/form',
+    path: '',
     component: Layout,
     children: [
       {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        path: 'article/list',
+        name: 'articleList',
+        component: () => import('@/views/article/list'),
+        meta: { title: '文章列表', icon: 'iconfont icon-list' }
+      }
+    ]
+  },
+
+  {
+    path: '',
+    component: Layout,
+    children: [
+      {
+        path: 'category',
+        name: 'Category',
+        component: () => import('@/views/category/index'),
+        meta: { title: '分类管理', icon: 'iconfont icon-category' }
+      }
+    ]
+  },
+
+  {
+    path: '',
+    component: Layout,
+    children: [
+      {
+        path: 'tag',
+        name: 'Tag',
+        component: () => import('@/views/tag/index'),
+        meta: { title: '标签管理', icon: 'iconfont icon-tag' }
       }
     ]
   },

@@ -3,6 +3,7 @@
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
+@import './iconfont.scss';
 
 body {
   -moz-osx-font-smoothing: grayscale;
@@ -49,11 +50,20 @@ a:hover {
   }
 }
 
+
 //main-container全局样式
 .app-main{
-  min-height: 100%
+  height: calc(100vh - 50px);
 }
 
 .app-container {
-  padding: 20px;
+  padding: 15px;
+}
+
+
+i.success{
+  color: #67C23A;
+}
+i.error {
+  color: #F56C6C;
 }
