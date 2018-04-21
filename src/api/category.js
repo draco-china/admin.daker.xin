@@ -1,8 +1,8 @@
 import axios from '@/utils/axios'
 
 export default {
-  create(icon, name, description, category) {
-    return axios.post('category', { icon, name, description, category })
+  create(params) {
+    return axios.post('category', params)
   },
   get(currentPage, pageSize, keyword) {
     return axios.get(`category?currentPage=${currentPage}&pageSize=${pageSize}&keyword=${keyword}`)
@@ -10,8 +10,8 @@ export default {
   getAll(keyword) {
     return axios.get(`category`)
   },
-  update(id, icon, name, description, category) {
-    return axios.put(`category/${id}`, { icon, name, description, category })
+  update(params) {
+    return axios.put(`category/${params._id}`, params)
   },
   delete(id) {
     return axios.delete(`category/${id}`)

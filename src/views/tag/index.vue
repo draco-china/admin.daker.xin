@@ -6,7 +6,7 @@
           <el-form :model="add" :inline="true" size="mini">
             <el-form-item label="图标">
               <template slot="label">
-                图标 <i :class="`iconfont icon-${add.icon}`"></i>
+                图标 <i :class="`iconfont ${add.icon}`"></i>
               </template>
               <el-select v-model="add.icon" filterable placeholder="请选择">
                 <el-option
@@ -14,7 +14,7 @@
                   :key="item"
                   :label="item"
                   :value="item">
-                  <i :class="`iconfont icon-${item}`"></i>
+                  <i :class="`iconfont ${item}`"></i>
                   <span>{{item}}</span>
                 </el-option>
               </el-select>
@@ -22,8 +22,11 @@
             <el-form-item label="名称">
               <el-input v-model="add.name" placeholder="请输入名称" clearable></el-input>
             </el-form-item>
+            <el-form-item label="链接">
+              <el-input v-model="add.slug" placeholder="请输入链接" clearable></el-input>
+            </el-form-item>
             <el-form-item label="描述">
-              <el-input v-model="add.description" placeholder="请输入描述" clearable></el-input>
+              <el-input v-model="add.description" placeholder="请输入描述" type="textarea" autosize></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="create">添加</el-button>
@@ -39,15 +42,15 @@
     </template>
     <template slot-scope="props">
       <el-table :data="list" style="width: 100%" :height="props.height"
-                @row-click="row => {tag = { _id: row._id, icon: row.icon, name: row.name, description: row.description }}">
+                @row-click="row => {tag = { _id: row._id, icon: row.icon, name: row.name, slug: row.slug, description: row.description }}">
         <el-table-column prop="name" label="名称" width="160">
           <template slot-scope="scope">
-            <el-button type="text" v-if="tag._id != scope.row._id" :icon="`iconfont icon-${scope.row.icon}`"> {{scope.row.name}}</el-button>
+            <el-button type="text" v-if="tag._id != scope.row._id" :icon="`iconfont ${scope.row.icon}`"> {{scope.row.name}}</el-button>
             <div v-else>
               图标：
               <el-select v-model="tag.icon" size="mini" filterable placeholder="请选择" style="width: 100%">
                 <el-option v-for="item in icon" :key="item" :label="item" :value="item">
-                  <i :class="`iconfont icon-${item}`"></i> <span>{{item}}</span>
+                  <i :class="`iconfont ${item}`"></i> <span>{{item}}</span>
                 </el-option>
               </el-select>
               名称：
@@ -55,10 +58,16 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="slug" label="链接">
+          <template slot-scope="scope">
+            <el-button type="text" v-if="tag._id != scope.row._id">{{scope.row.slug}}</el-button>
+            <el-input  v-else v-model="tag.slug" size="mini"></el-input>
+          </template>
+        </el-table-column>
         <el-table-column prop="description" label="描述">
           <template slot-scope="scope">
             <el-button type="text" v-if="tag._id != scope.row._id">{{scope.row.description}}</el-button>
-            <el-input  v-else v-model="tag.description" size="mini" clearable></el-input>
+            <el-input  v-else v-model="tag.description" size="mini" type="textarea" autosize></el-input>
           </template>
         </el-table-column>
         <el-table-column prop="articleTotal" label="文章数量" align="center" width="120"></el-table-column>
@@ -83,12 +92,14 @@ export default {
       add: {
         icon: null,
         name: null,
+        slug: null,
         description: null
       },
       tag: {
         _id: null,
         icon: null,
         name: null,
+        slug: null,
         description: null
       },
       list: [],
@@ -109,7 +120,7 @@ export default {
   },
   methods: {
     create() {
-      TagApi.create(this.add.icon, this.add.name, this.add.description).then(res => {
+      TagApi.create(this.add).then(res => {
         this.add = {
           icon: null,
           name: null,
@@ -133,7 +144,7 @@ export default {
       this.get()
     },
     update() {
-      TagApi.update(this.tag._id, this.tag.icon, this.tag.name, this.tag.description).then(res => {
+      TagApi.update(this.tag).then(res => {
         this.list.splice(this.list.findIndex(item => item._id === res.result._id), 1, res.result)
         this.tag._id = null
       })

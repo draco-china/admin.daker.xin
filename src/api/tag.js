@@ -1,8 +1,8 @@
 import axios from '@/utils/axios'
 
 export default {
-  create(icon, name, description) {
-    return axios.post('tag', { icon, name, description })
+  create(params) {
+    return axios.post('tag', params)
   },
   get(currentPage = 1, pageSize = 10, keyword) {
     return axios.get(`tag?currentPage=${currentPage}&pageSize=${pageSize}&keyword=${keyword}`)
@@ -10,8 +10,8 @@ export default {
   getAll() {
     return axios.get(`tag`)
   },
-  update(id, icon, name, description) {
-    return axios.put(`tag/${id}`, { icon, name, description })
+  update(params) {
+    return axios.put(`tag/${params._id}`, params)
   },
   delete(id) {
     return axios.delete(`tag/${id}`)

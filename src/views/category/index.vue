@@ -6,11 +6,11 @@
           <el-form :model="add" :inline="true" size="mini">
             <el-form-item label="图标">
               <template slot="label">
-                图标 <i :class="`iconfont icon-${add.icon}`"></i>
+                图标 <i :class="`iconfont ${add.icon}`"></i>
               </template>
               <el-select v-model="add.icon" filterable placeholder="请选择">
                 <el-option v-for="item in icon" :key="item" :label="item" :value="item">
-                  <i :class="`iconfont icon-${item}`"></i>
+                  <i :class="`iconfont ${item}`"></i>
                   <span>{{item}}</span>
                 </el-option>
               </el-select>
@@ -23,8 +23,18 @@
             <el-form-item label="名称">
               <el-input v-model="add.name" placeholder="请输入名称" clearable></el-input>
             </el-form-item>
+            <el-form-item label="链接">
+              <el-select v-model="add.slug" filterable placeholder="请选择">
+                <el-option label="编程" value="code"></el-option>
+                <el-option label="项目" value="project"></el-option>
+                <el-option label="思考" value="think"></el-option>
+                <el-option label="音乐" value="music"></el-option>
+                <el-option label="照片" value="photo"></el-option>
+                <el-option label="电影" value="movie"></el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="描述">
-              <el-input v-model="add.description" placeholder="请输入描述" clearable></el-input>
+              <el-input v-model="add.description" placeholder="请输入描述" type="textarea" autosize></el-input>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="create">添加</el-button>
@@ -40,17 +50,17 @@
     </template>
     <template slot-scope="props">
       <el-table :data="list" style="width: 100%" :height="props.height"
-                @row-click="row => {category = { _id: row._id, icon: row.icon, name: row.name, description: row.description }}">
+                @row-click="row => {category = { _id: row._id, icon: row.icon, name: row.name, slug: row.slug, description: row.description }}">
         <el-table-column prop="name" label="名称" width="160">
           <template slot-scope="scope">
-            <el-button type="text" v-if="category._id != scope.row._id" :icon="`iconfont icon-${scope.row.icon}`">
+            <el-button type="text" v-if="category._id != scope.row._id" :icon="`iconfont ${scope.row.icon}`">
               {{scope.row.name}}
             </el-button>
             <div v-else>
               图标：
               <el-select v-model="category.icon" size="mini" filterable placeholder="请选择" style="width: 100%">
                 <el-option v-for="item in icon" :key="item" :label="item" :value="item">
-                  <i :class="`iconfont icon-${item}`"></i> <span>{{item}}</span>
+                  <i :class="`iconfont ${item}`"></i> <span>{{item}}</span>
                 </el-option>
               </el-select>
               名称：
@@ -58,10 +68,16 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column prop="slug" label="链接">
+          <template slot-scope="scope">
+            <el-button type="text" v-if="category._id != scope.row._id">{{scope.row.slug}}</el-button>
+            <el-input  v-else v-model="category.slug" size="mini" clearable></el-input>
+          </template>
+        </el-table-column>
         <el-table-column prop="description" label="描述">
           <template slot-scope="scope">
             <el-button type="text" v-if="category._id != scope.row._id">{{scope.row.description}}</el-button>
-            <el-input  v-else v-model="category.description" size="mini" clearable></el-input>
+            <el-input  v-else v-model="category.description"  size="mini" type="textarea" autosize></el-input>
           </template>
         </el-table-column>
         <el-table-column prop="articleTotal" label="文章数量" align="center" width="120"></el-table-column>
@@ -86,6 +102,7 @@ export default {
       add: {
         icon: null,
         name: null,
+        slug: null,
         description: null,
         category: null
       },
@@ -93,6 +110,7 @@ export default {
         _id: null,
         icon: null,
         name: null,
+        slug: null,
         description: null,
         category: null
       },
@@ -114,10 +132,11 @@ export default {
   },
   methods: {
     create() {
-      CategoryApi.create(this.add.icon, this.add.name, this.add.description, this.add.category).then(res => {
+      CategoryApi.create(this.add).then(res => {
         this.add = {
           icon: null,
           name: null,
+          slug: null,
           description: null
         }
         this.get()
@@ -138,7 +157,7 @@ export default {
       this.get()
     },
     update() {
-      CategoryApi.update(this.category._id, this.category.icon, this.category.name, this.category.description, this.category.category).then(res => {
+      CategoryApi.update(this.category).then(res => {
         this.list.splice(this.list.findIndex(item => item._id === res.result._id), 1, res.result)
         this.category._id = null
       })

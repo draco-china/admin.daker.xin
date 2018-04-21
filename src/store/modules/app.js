@@ -31,7 +31,7 @@ const app = {
     getIcon({ commit }) {
       return new Promise((resolve, reject) => {
         IconApi.get().then(response => {
-          commit('SET_ICON', response.data.icons)
+          commit('SET_ICON', response.result.list)
           resolve()
         }).catch(error => {
           reject(error)
