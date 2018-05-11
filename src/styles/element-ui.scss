@@ -31,3 +31,10 @@
 .el-pagination {
   text-align: center  ;
 }
+
+.el-row, .el-col, .el-card {
+   height: 100%;
+ }
+ .el-card  .el-card__body {
+   height: 100%;
+ }

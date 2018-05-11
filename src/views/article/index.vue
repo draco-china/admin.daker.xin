@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-col :span="18">
-        <markdown-editor v-model="article.content" :configs="configs" style="height: 100%" preview-class="markdown-body"
+        <markdown-editor v-model="article.content" :configs="configs" preview-class="markdown-body"
                          ref="markdownEditor"></markdown-editor>
       </el-col>
       <el-col :span="6">
@@ -29,7 +29,7 @@
           </el-form-item>
           <el-form-item label="缩略图">
             <!--<el-input v-model="article.thumb"></el-input>-->
-            <el-upload drag accept="image/*" :show-file-list="false" action="" :http-request="singleFile">
+            <el-upload drag accept="image/*" :show-file-list="false" action="" :http-request="readImage">
               <img v-if="article.thumb" :src="article.thumb" class="avatar">
               <div v-else class="el-upload__text">
                 <span><em>拖拽上传</em> 或 <em>点击上传</em><br>图片比例为5:3</span>
@@ -47,17 +47,49 @@
             </el-select>
           </el-form-item>
           <el-form-item label="关键字">
-            <el-input v-model="keywords" placeholder='多个请用 “ , ” 隔开'></el-input>
+            <el-input v-model="article.keywords" placeholder='多个请用 “ , ” 隔开'></el-input>
           </el-form-item>
         </el-form>
+        <el-dialog title="图片裁剪" :visible.sync="cropperIsShow" width="1088px" center>
+          <div class="cropper-box">
+            <vue-cropper
+              ref="cropper"
+              :img="option.img"
+              :outputType="option.outputType"
+              :info="option.info"
+              :full="option.full"
+              :canScale="option.canScale"
+              :autoCrop="option.autoCrop"
+              :autoCropWidth="option.autoCropWidth"
+              :autoCropHeight="option.autoCropHeight"
+              :fixed="option.fixed"
+              :fixedNumber="option.fixedNumber"
+              @realTime="realTime"
+            ></vue-cropper>
+          </div>
+          <div class="show-preview" :style="{'width': previews.w + 'px', 'height': previews.h + 'px',  'overflow': 'hidden', 'margin': '5px'}">
+            <div :style="previews.div">
+              <img :src="previews.url" :style="previews.img">
+            </div>
+          </div>
+          <div style="visibility: hidden; position: absolute; z-index: -1; left: 0; top: 0;">
+            <canvas :width="originalImgData.width" :height="originalImgData.height" ref="preview"></canvas>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="cropperIsShow = false">取 消</el-button>
+            <el-button type="primary" @click="submitFile">确 定</el-button>
+          </span>
+        </el-dialog>
       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+  import VueCropper from 'vue-cropper'
   import UploadApi from '@/api/upload'
   import ArticleApi from '@/api/article'
+
   export default {
     data() {
       return {
@@ -78,6 +110,29 @@
           renderingConfig: {
             codeSyntaxHighlighting: true // 开启代码高亮
           }
+        },
+        cropperIsShow: false,
+        option: {
+          img: 'http://ofyaji162.bkt.clouddn.com/bg1.jpg',
+          info: true,
+          full: true,
+          outputType: 'png',
+          canMove: false,
+          autoCrop: true,
+          // 只有自动截图开启 宽度高度才生效
+          autoCropWidth: 500,
+          autoCropHeight: 300,
+          // 开启宽度和高度比例
+          fixed: true,
+          fixedNumber: [5, 3]
+        },
+        previews: {},
+        originalImgData: {
+          src: '',
+          name: '',
+          type: '',
+          width: 1200,
+          height: 720
         }
       }
     },
@@ -95,12 +150,15 @@
         return this.$refs.markdownEditor.simplemde
       }
     },
+    components: {
+      VueCropper
+    },
     beforeRouteEnter(to, from, next) {
       if (to.query.articleId) {
         ArticleApi.get(to.query.articleId).then(res => {
           next(vm => {
+            res.result.keywords = res.result.keywords.join(',')
             vm.article = res.result
-            vm.keywords = vm.article.keywords.join(',')
           })
         })
       } else {
@@ -110,8 +168,8 @@
     beforeRouteUpdate(to, from, next) {
       if (to.query.articleId) {
         ArticleApi.get(to.query.articleId).then(res => {
+          res.result.keywords = res.result.keywords.join(',')
           this.article = res.result
-          this.keywords = this.article.keywords.join(',')
         })
       } else {
         this.keywords = ''
@@ -187,31 +245,57 @@
       })
     },
     methods: {
-      singleFile(params) {
-        // 加载图片获取图片真实宽度和高度
-        // const image = new Image()
-        // image.onload = () => {
-        //   const width = image.width
-        //   const height = image.height
-        //   if (width / 5 === height / 3) {
-        //     return true
-        //   } else {
-        //     this.$message.error('上传的图片比例必须为 5:3 !')
-        //   }
-        // }
-        // image.src = URL.createObjectURL(file)
-        const isLt2M = params.file.size / 1024 / 1024 < 2
+      // 实时预览函数
+      realTime(data) {
+        this.previews = data
+      },
+      // 提交图片
+      submitFile() {
+        this.$refs.cropper.getCropBlob((data) => {
+          const canvas = this.$refs.preview
+          const ctx = canvas.getContext('2d')
+          const image = new Image()
+          image.src = URL.createObjectURL(data)
+          image.onload = () => {
+            this.originalImgData.src = image.src
+            // 清空画布
+            ctx.clearRect(0, 0, this.originalImgData.width, this.originalImgData.height)
+            ctx.save()
+            ctx.drawImage(image, 0, 0, this.originalImgData.width, this.originalImgData.height)
 
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!')
-          return isLt2M
-        }
-
-        const formData = new FormData()
-        formData.append('file', params.file)
-        UploadApi.singleFile(formData).then(res => {
-          this.article.thumb = res.result.path
+            // 添加文字水印
+            ctx.font = '24px Microsoft YaHei'
+            ctx.fillStyle = 'rgba(255, 255, 255, .25)'
+            // 获取文字宽度
+            const SAPN = document.createElement('span')
+            SAPN.innerHTML = 'daker.xin'
+            SAPN.setAttribute('id', 'span')
+            SAPN.setAttribute('style', 'font-size: 24px; font-family: Microsoft YaHei; visibility: hidden; display: inline-block;')
+            document.body.appendChild(SAPN)
+            const ELE = document.getElementById('span')
+            ctx.fillText('daker.xin', 1200 - ELE.clientWidth - 12, 720 - ELE.clientHeight / 2)
+            document.getElementById('span').remove()
+            ctx.restore()
+            canvas.toBlob(blob => {
+              const name = Date.now()
+              const files = new window.File([blob], name + '-file.png', { type: this.originalImgData.type || 'png' })
+              const formData = new FormData()
+              formData.append('file', files)
+              UploadApi.singleFile(formData).then(res => {
+                this.article.thumb = res.result.path
+                this.$refs.cropper.refresh()
+                this.cropperIsShow = false
+              })
+            })
+          }
         })
+      },
+      // 上传读取 并开始裁剪
+      readImage(params) {
+        this.option.img = URL.createObjectURL(params.file)
+        this.originalImgData.name = params.file.name
+        this.originalImgData.type = params.file.type
+        this.cropperIsShow = true
       },
       uploadImagesFile(simplemde, files) {
         // 把每个文件实例使用FormData进行包装一下，然后返回一个数组
@@ -221,22 +305,23 @@
         })
         UploadApi.multerFile(formData).then(res => {
           res.result.fileList.map(item => {
-            const url = `![](${location.origin + item.path})` // 拼接成markdown语法
+            const url = `![](${item.path})` // 拼接成markdown语法
             const content = simplemde.getValue()
             simplemde.setValue(content + url + '\n') // 和编辑框之前的内容进行拼接
           })
         })
       },
       create() {
-        this.article.keywords = this.keywords.split(',')
+        const params = JSON.parse(JSON.stringify(this.article))
+        params.keywords = this.site.keywords.split(',')
         if (!this.article._id) {
-          ArticleApi.create(this.article).then(res => {
+          ArticleApi.create(params).then(res => {
             if (res.success) {
               this.$router.push('/article/list')
             }
           })
         } else {
-          ArticleApi.update(this.article._id, this.article).then(res => {
+          ArticleApi.update(this.article._id, params).then(res => {
             if (res.success) {
               this.$router.push('/article/list')
             }
@@ -283,6 +368,30 @@
     img {
       width: 100%;
     }
+  }
+  .cropper-box {
+    width: 500px;
+    height: 500px;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 30px;
+  }
+  .show-preview {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0!important;
+    border: 1px dashed #39f;
+  }
+  .dialog-footer {
+    clear: both;
+  }
+  .el-dialog__wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .el-dialog.el-dialog--center {
+    margin-top: 0!important;
   }
 </style>
 

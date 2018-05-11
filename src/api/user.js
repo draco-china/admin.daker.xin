@@ -7,7 +7,10 @@ export default {
   logout() {
     return axios.post('logout')
   },
-  getInfo(token) {
-    return axios.get('user/info', { token })
+  get() {
+    return axios.get('user')
+  },
+  update(params) {
+    return axios.put('user', params)
   }
 }

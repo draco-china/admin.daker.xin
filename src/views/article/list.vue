@@ -17,14 +17,14 @@
         <el-table-column label="类别" width="120" align="center">
           <template slot-scope="scope">
             <el-tag size="mini">
-              <i :class="`iconfont icon-${scope.row.category.icon}`"/> {{scope.row.category.name}}
+              <i :class="`iconfont ${scope.row.category.icon}`"/> {{scope.row.category.name}}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="标签" align="center">
           <template slot-scope="scope">
             <el-tag size="mini" style="margin-left: 5px;" v-for="(item, index) in scope.row.tag" :key="index">
-              <i :class="`iconfont icon-${item.icon}`" /> {{item.name}}
+              <i :class="`iconfont ${item.icon}`" /> {{item.name}}
             </el-tag>
           </template>
         </el-table-column>
@@ -37,9 +37,9 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createAt" label="创建时间" align="center">
+        <el-table-column prop="create_at" label="创建时间" align="center">
           <template slot-scope="scope">
-            <span>{{scope.row.createAt | toLocalString}}</span>
+            <span>{{scope.row.create_at | toLocalString}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="meta.comments" label="评论" align="center"></el-table-column>

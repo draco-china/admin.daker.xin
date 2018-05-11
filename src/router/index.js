@@ -32,7 +32,7 @@ export const constantRouterMap = [
     children: [{
       path: 'dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: '首页', icon: 'iconfont icon-home', noCache: true }
+      meta: { title: '概览', icon: 'iconfont icon-home', noCache: true }
     }]
   },
 
@@ -84,6 +84,19 @@ export const constantRouterMap = [
         name: 'Tag',
         component: () => import('@/views/tag/index'),
         meta: { title: '标签管理', icon: 'iconfont icon-tag' }
+      }
+    ]
+  },
+
+  {
+    path: '',
+    component: Layout,
+    children: [
+      {
+        path: 'site',
+        name: 'site',
+        component: () => import('@/views/site/index'),
+        meta: { title: '站点设置', icon: 'iconfont icon-setting' }
       }
     ]
   },
