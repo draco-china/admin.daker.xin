@@ -51,10 +51,12 @@
             </template>
             <template slot-scope="props">
               <el-table :data="list" style="width: 100%" :height="props.height"
-                        @row-click="row => {tag = { _id: row._id, icon: row.icon, name: row.name, slug: row.slug, description: row.description }}">
+                        @row-click="row => {tag = { _id: row._id, icon: row.extends.find(t => Object.is(t.name, 'icon')).value, name: row.name, slug: row.slug, description: row.description }}">
                 <el-table-column prop="name" label="名称" width="160">
                   <template slot-scope="scope">
-                    <el-button type="text" v-if="tag._id != scope.row._id" :icon="`iconfont ${scope.row.icon}`"> {{scope.row.name}}</el-button>
+                    <el-button type="text"
+                               v-if="tag._id != scope.row._id && scope.row.extends.find(t => Object.is(t.name, 'icon'))"
+                               :icon="`iconfont ${scope.row.extends.find(t => Object.is(t.name, 'icon')).value}`"> {{scope.row.name}}</el-button>
                     <div v-else>
                       图标：
                       <el-select v-model="tag.icon" size="mini" filterable placeholder="请选择" style="width: 100%">
@@ -134,10 +136,22 @@ export default {
   },
   methods: {
     create() {
-      TagApi.create(this.add).then(res => {
+      const params = {
+        name: this.add.name,
+        slug: this.add.slug,
+        description: this.add.description,
+        extends: [
+          {
+            name: 'icon',
+            value: this.add.icon
+          }
+        ]
+      }
+      TagApi.create(params).then(res => {
         this.add = {
           icon: null,
           name: null,
+          slug: null,
           description: null
         }
         this.get()
@@ -158,7 +172,19 @@ export default {
       this.get()
     },
     update() {
-      TagApi.update(this.tag).then(res => {
+      const params = {
+        _id: this.tag._id,
+        name: this.tag.name,
+        slug: this.tag.slug,
+        description: this.tag.description,
+        extends: [
+          {
+            name: 'icon',
+            value: this.tag.icon
+          }
+        ]
+      }
+      TagApi.update(params).then(res => {
         this.list.splice(this.list.findIndex(item => item._id === res.result._id), 1, res.result)
         this.tag._id = null
       })

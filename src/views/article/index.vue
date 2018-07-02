@@ -93,7 +93,6 @@
   export default {
     data() {
       return {
-        keywords: '',
         article: {
           category: null,
           title: null,
@@ -313,7 +312,7 @@
       },
       create() {
         const params = JSON.parse(JSON.stringify(this.article))
-        params.keywords = this.site.keywords.split(',')
+        params.keywords = this.article.keywords.split(',')
         if (!this.article._id) {
           ArticleApi.create(params).then(res => {
             if (res.success) {

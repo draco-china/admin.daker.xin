@@ -58,10 +58,12 @@
             </template>
             <template slot-scope="props">
               <el-table :data="list" style="width: 100%" :height="props.height"
-                        @row-click="row => {category = { _id: row._id, icon: row.icon, name: row.name, slug: row.slug, description: row.description }}">
+                        @row-click="row => {category = { _id: row._id, icon: row.extends.find(t => Object.is(t.name, 'icon')).value, name: row.name, slug: row.slug, description: row.description }}">
                 <el-table-column prop="name" label="名称" width="160">
                   <template slot-scope="scope">
-                    <el-button type="text" v-if="category._id != scope.row._id" :icon="`iconfont ${scope.row.icon}`">
+                    <el-button type="text"
+                               v-if="category._id != scope.row._id  && scope.row.extends.find(t => Object.is(t.name, 'icon'))"
+                               :icon="`iconfont ${scope.row.extends.find(t => Object.is(t.name, 'icon')).value}`">
                       {{scope.row.name}}
                     </el-button>
                     <div v-else>
@@ -145,7 +147,18 @@
     },
     methods: {
       create() {
-        CategoryApi.create(this.add).then(res => {
+        const params = {
+          name: this.add.name,
+          slug: this.add.slug,
+          description: this.add.description,
+          extends: [
+            {
+              name: 'icon',
+              value: this.add.icon
+            }
+          ]
+        }
+        CategoryApi.create(params).then(res => {
           this.add = {
             icon: null,
             name: null,
@@ -170,7 +183,19 @@
         this.get()
       },
       update() {
-        CategoryApi.update(this.category).then(res => {
+        const params = {
+          _id: this.category._id,
+          name: this.category.name,
+          slug: this.category.slug,
+          description: this.category.description,
+          extends: [
+            {
+              name: 'icon',
+              value: this.category.icon
+            }
+          ]
+        }
+        CategoryApi.update(params).then(res => {
           this.list.splice(this.list.findIndex(item => item._id === res.result._id), 1, res.result)
           this.category._id = null
         })
