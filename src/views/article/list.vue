@@ -16,7 +16,7 @@
         </el-table-column>
         <el-table-column label="类别" width="120" align="center">
           <template slot-scope="scope">
-            <el-tag size="mini">
+            <el-tag size="mini" v-if="scope.row.category">
               <i :class="`iconfont ${scope.row.category.icon}`"/> {{scope.row.category.name}}
             </el-tag>
           </template>
