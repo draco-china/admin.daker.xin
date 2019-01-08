@@ -8,6 +8,16 @@
             <el-button style="float: right; padding: 3px 0" type="text" @click="create">添加</el-button>
           </div>
           <el-form :model="add" size="small">
+            <el-form-item label="名称">
+              <el-input v-model="add.name" placeholder="请输入名称" clearable></el-input>
+            </el-form-item>
+            <el-form-item label="别名">
+              <el-input v-model="add.slug" placeholder="请输入别名" clearable></el-input>
+            </el-form-item>
+            <el-form-item label="描述">
+              <el-input v-model="add.description" :autosize="{ minRows: 5, maxRows: 15}" placeholder="请输入描述"
+                        type="textarea"></el-input>
+            </el-form-item>
             <el-form-item label="图标">
               <template slot="label">
                 图标 <i :class="`iconfont ${add.icon ? add.icon : 'icon-emoji'}`"></i>
@@ -19,28 +29,11 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="分类">
-              <el-select v-model="add.category" filterable placeholder="请选择" style="width: 100%" clearable>
-                <el-option v-for="item in list" :key="item._id" :label="item.name" :value="item._id"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="名称">
-              <el-input v-model="add.name" placeholder="请输入名称" clearable></el-input>
-            </el-form-item>
-            <el-form-item label="链接">
-              <el-select v-model="add.slug" filterable placeholder="请选择" style="width: 100%" clearable>
-                <el-option label="编程" value="code"></el-option>
-                <el-option label="项目" value="project"></el-option>
-                <el-option label="思考" value="think"></el-option>
-                <el-option label="音乐" value="music"></el-option>
-                <el-option label="照片" value="photo"></el-option>
-                <el-option label="电影" value="movie"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="描述">
-              <el-input v-model="add.description" :autosize="{ minRows: 5, maxRows: 15}" placeholder="请输入描述"
-                        type="textarea"></el-input>
-            </el-form-item>
+            <!--<el-form-item label="分类">-->
+              <!--<el-select v-model="add.category" filterable placeholder="请选择" style="width: 100%" clearable>-->
+                <!--<el-option v-for="item in list" :key="item._id" :label="item.name" :value="item._id"></el-option>-->
+              <!--</el-select>-->
+            <!--</el-form-item>-->
           </el-form>
         </el-card>
       </el-col>
@@ -78,7 +71,7 @@
                     </div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="slug" label="链接">
+                <el-table-column prop="slug" label="别名">
                   <template slot-scope="scope">
                     <el-button type="text" v-if="category._id != scope.row._id">{{scope.row.slug}}</el-button>
                     <el-input v-else v-model="category.slug" size="mini" clearable></el-input>

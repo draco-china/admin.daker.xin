@@ -16,15 +16,15 @@
         </el-table-column>
         <el-table-column label="类别" width="120" align="center">
           <template slot-scope="scope">
-            <el-tag size="mini" v-if="scope.row.category">
-              <i :class="`iconfont ${scope.row.category.icon}`"/> {{scope.row.category.name}}
+            <el-tag size="mini" v-if="scope.row.category && scope.row.category.extends.find(t => Object.is(t.name, 'icon'))">
+              <i :class="`iconfont ${scope.row.category.extends.find(t => Object.is(t.name, 'icon')).value}`"/> {{scope.row.category.name}}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="标签" align="center">
           <template slot-scope="scope">
             <el-tag size="mini" style="margin-left: 5px;" v-for="(item, index) in scope.row.tag" :key="index">
-              <i :class="`iconfont ${item.icon}`" /> {{item.name}}
+              <i :class="`iconfont  ${item.extends.find(t => Object.is(t.name, 'icon')).value}`" /> {{item.name}}
             </el-tag>
           </template>
         </el-table-column>

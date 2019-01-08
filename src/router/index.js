@@ -32,58 +32,38 @@ export const constantRouterMap = [
     children: [{
       path: 'dashboard',
       component: () => import('@/views/dashboard/index'),
-      meta: { title: '概览', icon: 'iconfont icon-home', noCache: true }
+      meta: { title: '仪表盘', icon: 'iconfont icon-home', noCache: true }
     }]
   },
 
   {
     path: '',
-    component: Layout,
-    children: [
-      {
-        path: 'article',
-        name: 'article',
-        component: () => import('@/views/article/index'),
-        meta: { title: '撰写文章', icon: 'iconfont icon-work' }
-      }
-    ]
-  },
-
-  {
-    path: '',
+    meta: { title: '文章管理', icon: 'iconfont icon-mark' },
     component: Layout,
     children: [
       {
         path: 'article/list',
         name: 'articleList',
         component: () => import('@/views/article/list'),
-        meta: { title: '文章列表', icon: 'iconfont icon-list' }
-      }
-    ]
-  },
-
-  {
-    path: '',
-    component: Layout,
-    children: [
+        meta: { title: '所有文章', icon: 'iconfont icon-article' }
+      },
       {
         path: 'category',
         name: 'Category',
         component: () => import('@/views/category/index'),
-        meta: { title: '分类管理', icon: 'iconfont icon-category' }
-      }
-    ]
-  },
-
-  {
-    path: '',
-    component: Layout,
-    children: [
+        meta: { title: '分类目录', icon: 'iconfont icon-folder' }
+      },
+      {
+        path: 'article',
+        name: 'article',
+        component: () => import('@/views/article/index'),
+        meta: { title: '发布文章', icon: 'iconfont icon-edit' }
+      },
       {
         path: 'tag',
         name: 'Tag',
         component: () => import('@/views/tag/index'),
-        meta: { title: '标签管理', icon: 'iconfont icon-tag' }
+        meta: { title: '文章标签', icon: 'iconfont icon-tag' }
       }
     ]
   },

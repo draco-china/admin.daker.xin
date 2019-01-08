@@ -2,84 +2,91 @@
   <div class="app-container">
     <el-row :gutter="20">
       <el-col :span="18">
-        <markdown-editor v-model="article.content" :configs="configs" preview-class="markdown-body"
-                         ref="markdownEditor"></markdown-editor>
+        <el-card>
+          <el-form size="mini" label-position="left" label-width="90px">
+            <el-form-item label="文章标题">
+              <el-input v-model="article.title" placeholder="请输入标题"></el-input>
+            </el-form-item>
+            <el-form-item label="文章关键字">
+              <el-input v-model="article.keywords" placeholder='多个请用 “ , ” 隔开'></el-input>
+            </el-form-item>
+            <el-form-item label="文章描述">
+              <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 10}" v-model="article.description" placeholder="请输入描述"></el-input>
+            </el-form-item>
+            <el-form-item label="文章标签">
+              <el-select v-model="article.tag" multiple placeholder="请选择类别" style="width: 100%">
+                <el-option v-for="item in tag" :key="item._id" :label="item.name" :value="item._id"></el-option>
+              </el-select>
+              <!--<el-checkbox-group v-model="article.tag">-->
+                <!--<el-checkbox v-for="item in tag" :key="item._id" :label="item.name" :value="item._id" border></el-checkbox>-->
+              <!--</el-checkbox-group>-->
+            </el-form-item>
+          </el-form>
+          <markdown-editor v-model="article.content" :configs="configs" preview-class="markdown-body" ref="markdownEditor"></markdown-editor>
+        </el-card>
       </el-col>
       <el-col :span="6">
-        <el-form size="mini">
-          <el-form-item>
-            <el-button type="success" icon="el-icon-check" round @click="create">
-              <span v-if="!article._id">保存并发布</span>
-              <span v-else>修改并发布</span>
-            </el-button>
-            <el-button type="danger" icon="el-icon-delete" round @click="clear">清空</el-button>
-          </el-form-item>
-          <el-form-item label="状态">
-            <el-select v-model="article.state" filterable placeholder="请选择" style="width: 100%">
-              <el-option label="回收站" :value="-1"></el-option>
-              <el-option label="草稿" :value="0"></el-option>
-              <el-option label="已发布" :value="1"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="标题">
-            <el-input v-model="article.title" placeholder="请输入标题"></el-input>
-          </el-form-item>
-          <el-form-item label="描述">
-            <el-input v-model="article.description" placeholder="请输入描述"></el-input>
-          </el-form-item>
-          <el-form-item label="缩略图">
-            <!--<el-input v-model="article.thumb"></el-input>-->
-            <el-upload drag accept="image/*" :show-file-list="false" action="" :http-request="readImage">
-              <img v-if="article.thumb" :src="article.thumb" class="avatar">
-              <div v-else class="el-upload__text">
-                <span><em>拖拽上传</em> 或 <em>点击上传</em><br>图片比例为5:3</span>
-              </div>
-            </el-upload>
-          </el-form-item>
-          <el-form-item label="类别">
-            <el-select v-model="article.category" filterable placeholder="请选择类别" style="width: 100%">
-              <el-option v-for="item in category" :key="item._id" :label="item.name" :value="item._id"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="标签">
-            <el-select v-model="article.tag" multiple placeholder="请选择标签" style="width: 100%">
-              <el-option v-for="item in tag" :key="item._id" :label="item.name" :value="item._id"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="关键字">
-            <el-input v-model="article.keywords" placeholder='多个请用 “ , ” 隔开'></el-input>
-          </el-form-item>
-        </el-form>
-        <el-dialog title="图片裁剪" :visible.sync="cropperIsShow" width="1088px" center>
-          <div class="cropper-box">
-            <vue-cropper
-              ref="cropper"
-              :img="option.img"
-              :outputType="option.outputType"
-              :info="option.info"
-              :full="option.full"
-              :canScale="option.canScale"
-              :autoCrop="option.autoCrop"
-              :autoCropWidth="option.autoCropWidth"
-              :autoCropHeight="option.autoCropHeight"
-              :fixed="option.fixed"
-              :fixedNumber="option.fixedNumber"
-              @realTime="realTime"
-            ></vue-cropper>
-          </div>
-          <div class="show-preview" :style="{'width': previews.w + 'px', 'height': previews.h + 'px',  'overflow': 'hidden', 'margin': '5px'}">
-            <div :style="previews.div">
-              <img :src="previews.url" :style="previews.img">
+        <el-card>
+          <el-form size="mini" label-position="top">
+            <el-form-item label="分类目录">
+              <el-select v-model="article.category" filterable placeholder="请选择类别" style="width: 100%">
+                <el-option v-for="item in category" :key="item._id" :label="item.name" :value="item._id"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="文章状态">
+              <el-select v-model="article.state" filterable placeholder="请选择" style="width: 100%">
+                <el-option label="回收站" :value="-1"></el-option>
+                <el-option label="草稿" :value="0"></el-option>
+                <el-option label="已发布" :value="1"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="缩略图">
+              <el-upload drag accept="image/*" :show-file-list="false" action="" :http-request="readImage">
+                <img v-if="article.thumb" :src="article.thumb" class="avatar">
+                <div v-else class="el-upload__text">
+                  <span><em>拖拽上传</em> 或 <em>点击上传</em><br>图片比例为5:3</span>
+                </div>
+              </el-upload>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="success" icon="el-icon-check" round @click="create">
+                <span v-if="!article._id">保存并发布</span>
+                <span v-else>修改并发布</span>
+              </el-button>
+              <el-button type="danger" icon="el-icon-delete" round @click="clear">清空</el-button>
+            </el-form-item>
+          </el-form>
+          <el-dialog title="图片裁剪" :visible.sync="cropperIsShow" width="1088px" center>
+            <div class="cropper-box">
+              <vue-cropper
+                ref="cropper"
+                :img="option.img"
+                :outputType="option.outputType"
+                :info="option.info"
+                :full="option.full"
+                :canScale="option.canScale"
+                :autoCrop="option.autoCrop"
+                :autoCropWidth="option.autoCropWidth"
+                :autoCropHeight="option.autoCropHeight"
+                :fixed="option.fixed"
+                :fixedNumber="option.fixedNumber"
+                @realTime="realTime"
+              ></vue-cropper>
             </div>
-          </div>
-          <div style="visibility: hidden; position: absolute; z-index: -1; left: 0; top: 0;">
-            <canvas :width="originalImgData.width" :height="originalImgData.height" ref="preview"></canvas>
-          </div>
-          <span slot="footer" class="dialog-footer">
+            <div class="show-preview" :style="{'width': previews.w + 'px', 'height': previews.h + 'px',  'overflow': 'hidden', 'margin': '5px'}">
+              <div :style="previews.div">
+                <img :src="previews.url" :style="previews.img">
+              </div>
+            </div>
+            <div style="visibility: hidden; position: absolute; z-index: -1; left: 0; top: 0;">
+              <canvas :width="originalImgData.width" :height="originalImgData.height" ref="preview"></canvas>
+            </div>
+            <span slot="footer" class="dialog-footer">
             <el-button @click="cropperIsShow = false">取 消</el-button>
             <el-button type="primary" @click="submitFile">确 定</el-button>
           </span>
-        </el-dialog>
+          </el-dialog>
+        </el-card>
       </el-col>
     </el-row>
   </div>
@@ -97,7 +104,7 @@
           category: null,
           title: null,
           keywords: null,
-          descriptionL: null,
+          description: null,
           tag: [],
           thumb: null,
           content: null,
@@ -176,7 +183,7 @@
           category: null,
           title: null,
           keywords: null,
-          descriptionL: null,
+          description: null,
           tag: [],
           thumb: null,
           content: null,
@@ -333,7 +340,7 @@
           category: null,
           title: null,
           keywords: null,
-          descriptionL: null,
+          description: null,
           tag: [],
           thumb: null,
           content: '',
@@ -346,12 +353,26 @@
 </script>
 
 <style lang="scss">
+  .el-checkbox__input {
+    display: none;
+  }
+  .el-checkbox__label {
+    padding-left: 5px;
+  }
+  .el-checkbox.is-bordered {
+    margin-right: 5px;
+    margin-left: 0;
+    &+.el-checkbox.is-bordered {
+      margin-right: 5px;
+      margin-left: 0;
+    }
+  }
   .CodeMirror-wrap pre {
     line-height: 1.25;
   }
 
   .CodeMirror {
-    height: calc(100vh - 158px);
+    height: calc(100vh - 131px - 198px - 55px);
   }
   .el-upload {
     width: 100%;
@@ -362,7 +383,7 @@
       overflow: hidden;
     }
     .el-upload__text {
-      margin-top: 15%;
+      margin-top: 20%;
     }
     img {
       width: 100%;
